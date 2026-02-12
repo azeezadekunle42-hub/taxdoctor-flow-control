@@ -2,38 +2,33 @@ import { Button } from "@/components/ui/button";
 import { Check } from "lucide-react";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 
+const sharedFeatures = [
+  "Monthly book closure",
+  "Bank reconciliation",
+  "Payroll accuracy review",
+  "Monthly P&L + summary insight",
+  "Staff cost percentage analysis",
+  "Compliance calendar tracking",
+  "Year-end coordination",
+];
+
 const tiers = [
   {
     name: "Starter Control",
-    price: "₦150,000",
-    period: "/month",
-    features: ["Monthly book closure", "Bank reconciliation", "Basic P&L report", "Compliance calendar"],
+    turnover: "< ₦50m",
+    turnoverLabel: "Annual Turnover",
     highlighted: false,
   },
   {
     name: "Growth Control",
-    price: "₦300,000",
-    period: "/month",
-    features: [
-      "Everything in Starter",
-      "Payroll accuracy review",
-      "Staff cost analysis",
-      "Monthly insight summary",
-      "Year-end coordination",
-    ],
+    turnover: "< ₦100m",
+    turnoverLabel: "Annual Turnover",
     highlighted: true,
   },
   {
-    name: "Full Financial Control",
-    price: "₦500,000",
-    period: "/month",
-    features: [
-      "Everything in Growth",
-      "Multi-entity support",
-      "Priority compliance alerts",
-      "Quarterly strategy review",
-      "Dedicated account lead",
-    ],
+    name: "Premium Control",
+    turnover: "> ₦100m",
+    turnoverLabel: "Annual Turnover",
     highlighted: false,
   },
 ];
@@ -68,11 +63,11 @@ const PricingSection = () => {
               )}
               <h3 className="text-xl font-bold mb-2">{tier.name}</h3>
               <div className="mb-6">
-                <span className="text-4xl font-extrabold">{tier.price}</span>
-                <span className="text-muted-foreground text-sm">{tier.period}</span>
+                <span className="text-4xl font-extrabold">{tier.turnover}</span>
+                <p className="text-muted-foreground text-sm mt-1">{tier.turnoverLabel}</p>
               </div>
               <ul className="space-y-3 mb-8">
-                {tier.features.map((f) => (
+                {sharedFeatures.map((f) => (
                   <li key={f} className="flex items-start gap-3 text-sm">
                     <Check className="w-4 h-4 text-primary mt-0.5 shrink-0" strokeWidth={3} />
                     <span>{f}</span>
