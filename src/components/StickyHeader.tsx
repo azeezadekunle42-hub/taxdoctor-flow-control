@@ -28,8 +28,13 @@ const StickyHeader = () => {
           <a href="#system" className="hover:text-foreground transition-colors">The System</a>
           <a href="#pricing" className="hover:text-foreground transition-colors">Pricing</a>
         </nav>
-        <Button variant="hero" size="sm" className="rounded-full px-6">
-          Book Financial Diagnostic
+        <Button 
+          variant="hero" 
+          size="sm" 
+          className="rounded-full px-6"
+          onClick={() => window.open("https://bit.ly/Reach_Taxdoctor", "_blank")}
+        >
+          Schedule Consultation
         </Button>
       </div>
     </header>

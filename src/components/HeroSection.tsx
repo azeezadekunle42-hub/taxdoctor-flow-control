@@ -26,8 +26,13 @@ const HeroSection = () => {
             >
               Book Financial Diagnostic
             </Button>
-            <Button variant="hero-outline" size="lg" className="rounded-full text-base px-8 py-6">
-              View System Breakdown
+            <Button 
+              variant="hero-outline" 
+              size="lg" 
+              className="rounded-full text-base px-8 py-6"
+              onClick={() => window.open("https://bit.ly/Reach_Taxdoctor", "_blank")}
+            >
+              Schedule Consultation
             </Button>
           </div>
         </div>
