@@ -1,6 +1,8 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Check } from "lucide-react";
+import { Check, Loader2 } from "lucide-react";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
+import { toast } from "sonner";
 
 const sharedFeatures = [
   "Monthly book closure",
@@ -17,30 +19,85 @@ const tiers = [
     name: "Starter Control",
     turnover: "< ₦50m",
     turnoverLabel: "Annual Turnover",
-    monthly: "₦75,000",
-    annual: "₦750,000",
+    prices: {
+      Quarterly: 75000 * 3,
+      "Half Yearly": 75000 * 6,
+      Annual: 750000,
+    },
     highlighted: false,
   },
   {
     name: "Growth Control",
     turnover: "< ₦100m",
     turnoverLabel: "Annual Turnover",
-    monthly: "₦100,000",
-    annual: "₦1,000,000",
+    prices: {
+      Quarterly: 100000 * 3,
+      "Half Yearly": 100000 * 6,
+      Annual: 1000000,
+    },
     highlighted: true,
   },
   {
     name: "Premium Control",
     turnover: "> ₦100m",
     turnoverLabel: "Annual Turnover",
-    monthly: "₦150,000",
-    annual: "₦1,500,000",
+    prices: {
+      Quarterly: 150000 * 3,
+      "Half Yearly": 150000 * 6,
+      Annual: 1500000,
+    },
     highlighted: false,
   },
 ];
 
 const PricingSection = () => {
   const { ref, isVisible } = useScrollAnimation();
+  const [loadingKey, setLoadingKey] = useState<string | null>(null);
+
+  const handlePayment = async (tierName: string, plan: string, amount: number) => {
+    const key = `${tierName}-${plan}`;
+    setLoadingKey(key);
+
+    const email = prompt("Please enter your email address for payment:");
+    if (!email) {
+      setLoadingKey(null);
+      return;
+    }
+
+    try {
+      const callbackUrl = `${window.location.origin}/payment-verification`;
+      const res = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/initialize-payment`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+          },
+          body: JSON.stringify({
+            email,
+            amount,
+            plan,
+            tier: tierName,
+            callback_url: callbackUrl,
+          }),
+        }
+      );
+
+      const data = await res.json();
+
+      if (data.authorization_url) {
+        window.location.href = data.authorization_url;
+      } else {
+        toast.error(data.error || "Failed to initialize payment");
+      }
+    } catch {
+      toast.error("Something went wrong. Please try again.");
+    } finally {
+      setLoadingKey(null);
+    }
+  };
+
   return (
     <section ref={ref} id="pricing" className={`py-20 md:py-28 bg-secondary transition-all duration-700 ${isVisible ? "opacity-100" : "opacity-0"}`}>
       <div className="container mx-auto px-6">
@@ -72,10 +129,6 @@ const PricingSection = () => {
                 <span className="text-4xl font-extrabold">{tier.turnover}</span>
                 <p className="text-muted-foreground text-sm mt-1">{tier.turnoverLabel}</p>
               </div>
-              <div className="mb-6 text-sm text-muted-foreground">
-                <p><span className="font-semibold text-foreground">{tier.monthly}</span> /month</p>
-                <p><span className="font-semibold text-foreground">{tier.annual}</span> /year</p>
-              </div>
               <ul className="space-y-3 mb-8">
                 {sharedFeatures.map((f) => (
                   <li key={f} className="flex items-start gap-3 text-sm">
@@ -85,27 +138,25 @@ const PricingSection = () => {
                 ))}
               </ul>
               <div className="flex flex-col gap-2">
-                <Button
-                  variant={tier.highlighted ? "hero" : "hero-outline"}
-                  className="w-full rounded-full"
-                  onClick={() => window.open("https://api.leadconnectorhq.com/widget/bookings/consult-taxdoctor", "_blank")}
-                >
-                  Quarterly
-                </Button>
-                <Button
-                  variant={tier.highlighted ? "hero" : "hero-outline"}
-                  className="w-full rounded-full"
-                  onClick={() => window.open("https://api.leadconnectorhq.com/widget/bookings/consult-taxdoctor", "_blank")}
-                >
-                  Half Yearly
-                </Button>
-                <Button
-                  variant={tier.highlighted ? "hero" : "hero-outline"}
-                  className="w-full rounded-full"
-                  onClick={() => window.open("https://api.leadconnectorhq.com/widget/bookings/consult-taxdoctor", "_blank")}
-                >
-                  Annual
-                </Button>
+                {Object.entries(tier.prices).map(([plan, amount]) => {
+                  const key = `${tier.name}-${plan}`;
+                  const isLoading = loadingKey === key;
+                  return (
+                    <Button
+                      key={plan}
+                      variant={tier.highlighted ? "hero" : "hero-outline"}
+                      className="w-full rounded-full"
+                      disabled={isLoading}
+                      onClick={() => handlePayment(tier.name, plan, amount)}
+                    >
+                      {isLoading ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        `${plan} — ₦${amount.toLocaleString()}`
+                      )}
+                    </Button>
+                  );
+                })}
               </div>
             </div>
           ))}
