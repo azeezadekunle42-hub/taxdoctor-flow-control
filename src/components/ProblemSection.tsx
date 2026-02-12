@@ -1,4 +1,5 @@
 import { EyeOff, AlertTriangle, Building2, Users, CalendarX, HelpCircle } from "lucide-react";
+import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 
 const problems = [
   { icon: EyeOff, title: "No Monthly Financial Visibility", desc: "You can't manage what you can't see. Decisions made blind." },
@@ -10,8 +11,9 @@ const problems = [
 ];
 
 const ProblemSection = () => {
+  const { ref, isVisible } = useScrollAnimation();
   return (
-    <section id="problem" className="py-20 md:py-28 bg-secondary">
+    <section ref={ref} id="problem" className={`py-20 md:py-28 bg-secondary transition-all duration-700 ${isVisible ? "opacity-100" : "opacity-0"}`}>
       <div className="container mx-auto px-6">
         <div className="max-w-2xl mb-14">
           <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight mb-4">

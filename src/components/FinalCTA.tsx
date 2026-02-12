@@ -1,8 +1,10 @@
 import { Button } from "@/components/ui/button";
+import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 
 const FinalCTA = () => {
+  const { ref, isVisible } = useScrollAnimation();
   return (
-    <section className="py-20 md:py-28 bg-surface-dark text-surface-dark-foreground">
+    <section ref={ref} className={`py-20 md:py-28 bg-surface-dark text-surface-dark-foreground transition-all duration-700 ${isVisible ? "opacity-100" : "opacity-0"}`}>
       <div className="container mx-auto px-6 text-center">
         <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight mb-6 text-balance">
           Install Financial Structure Before Growth Breaks You.
