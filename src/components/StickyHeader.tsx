@@ -32,7 +32,7 @@ const StickyHeader = () => {
           variant="hero" 
           size="sm" 
           className="rounded-full px-6"
-          onClick={() => window.open("https://bit.ly/Reach_Taxdoctor", "_blank")}
+          onClick={() => window.open("https://paystack.shop/pay/Tax_Consultation", "_blank")}
         >
           Schedule Consultation
         </Button>
