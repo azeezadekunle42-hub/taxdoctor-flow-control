@@ -17,18 +17,24 @@ const tiers = [
     name: "Starter Control",
     turnover: "< ₦50m",
     turnoverLabel: "Annual Turnover",
+    monthly: "₦75,000",
+    annual: "₦750,000",
     highlighted: false,
   },
   {
     name: "Growth Control",
     turnover: "< ₦100m",
     turnoverLabel: "Annual Turnover",
+    monthly: "₦100,000",
+    annual: "₦1,000,000",
     highlighted: true,
   },
   {
     name: "Premium Control",
     turnover: "> ₦100m",
     turnoverLabel: "Annual Turnover",
+    monthly: "₦150,000",
+    annual: "₦1,500,000",
     highlighted: false,
   },
 ];
@@ -62,9 +68,13 @@ const PricingSection = () => {
                 </span>
               )}
               <h3 className="text-xl font-bold mb-2">{tier.name}</h3>
-              <div className="mb-6">
+              <div className="mb-4">
                 <span className="text-4xl font-extrabold">{tier.turnover}</span>
                 <p className="text-muted-foreground text-sm mt-1">{tier.turnoverLabel}</p>
+              </div>
+              <div className="mb-6 text-sm text-muted-foreground">
+                <p><span className="font-semibold text-foreground">{tier.monthly}</span> /month</p>
+                <p><span className="font-semibold text-foreground">{tier.annual}</span> /year</p>
               </div>
               <ul className="space-y-3 mb-8">
                 {sharedFeatures.map((f) => (
@@ -74,12 +84,29 @@ const PricingSection = () => {
                   </li>
                 ))}
               </ul>
-              <Button
-                variant={tier.highlighted ? "hero" : "hero-outline"}
-                className="w-full rounded-full"
-              >
-                Get Started
-              </Button>
+              <div className="flex flex-col gap-2">
+                <Button
+                  variant={tier.highlighted ? "hero" : "hero-outline"}
+                  className="w-full rounded-full"
+                  onClick={() => window.open("https://api.leadconnectorhq.com/widget/bookings/consult-taxdoctor", "_blank")}
+                >
+                  Quarterly
+                </Button>
+                <Button
+                  variant={tier.highlighted ? "hero" : "hero-outline"}
+                  className="w-full rounded-full"
+                  onClick={() => window.open("https://api.leadconnectorhq.com/widget/bookings/consult-taxdoctor", "_blank")}
+                >
+                  Half Yearly
+                </Button>
+                <Button
+                  variant={tier.highlighted ? "hero" : "hero-outline"}
+                  className="w-full rounded-full"
+                  onClick={() => window.open("https://api.leadconnectorhq.com/widget/bookings/consult-taxdoctor", "_blank")}
+                >
+                  Annual
+                </Button>
+              </div>
             </div>
           ))}
         </div>
