@@ -19,33 +19,30 @@ const tiers = [
     name: "Starter Control",
     turnover: "< ₦50m",
     turnoverLabel: "Annual Turnover",
-    prices: {
-      Quarterly: 75000 * 3,
-      "Half Yearly": 75000 * 6,
-      Annual: 750000,
-    },
+    monthly: "₦75,000",
+    annual: "₦750,000",
+    monthlyAmount: 75000,
+    annualAmount: 750000,
     highlighted: false,
   },
   {
     name: "Growth Control",
     turnover: "< ₦100m",
     turnoverLabel: "Annual Turnover",
-    prices: {
-      Quarterly: 100000 * 3,
-      "Half Yearly": 100000 * 6,
-      Annual: 1000000,
-    },
+    monthly: "₦100,000",
+    annual: "₦1,000,000",
+    monthlyAmount: 100000,
+    annualAmount: 1000000,
     highlighted: true,
   },
   {
     name: "Premium Control",
     turnover: "> ₦100m",
     turnoverLabel: "Annual Turnover",
-    prices: {
-      Quarterly: 150000 * 3,
-      "Half Yearly": 150000 * 6,
-      Annual: 1500000,
-    },
+    monthly: "₦150,000",
+    annual: "₦1,500,000",
+    monthlyAmount: 150000,
+    annualAmount: 1500000,
     highlighted: false,
   },
 ];
@@ -129,6 +126,10 @@ const PricingSection = () => {
                 <span className="text-4xl font-extrabold">{tier.turnover}</span>
                 <p className="text-muted-foreground text-sm mt-1">{tier.turnoverLabel}</p>
               </div>
+              <div className="mb-6 text-sm text-muted-foreground">
+                <p><span className="font-semibold text-foreground">{tier.monthly}</span> /month</p>
+                <p><span className="font-semibold text-foreground">{tier.annual}</span> /year</p>
+              </div>
               <ul className="space-y-3 mb-8">
                 {sharedFeatures.map((f) => (
                   <li key={f} className="flex items-start gap-3 text-sm">
@@ -138,7 +139,11 @@ const PricingSection = () => {
                 ))}
               </ul>
               <div className="flex flex-col gap-2">
-                {Object.entries(tier.prices).map(([plan, amount]) => {
+                {[
+                  { plan: "Quarterly", amount: tier.monthlyAmount * 3 },
+                  { plan: "Half Yearly", amount: tier.monthlyAmount * 6 },
+                  { plan: "Annual", amount: tier.annualAmount },
+                ].map(({ plan, amount }) => {
                   const key = `${tier.name}-${plan}`;
                   const isLoading = loadingKey === key;
                   return (
@@ -152,7 +157,7 @@ const PricingSection = () => {
                       {isLoading ? (
                         <Loader2 className="w-4 h-4 animate-spin" />
                       ) : (
-                        `${plan} — ₦${amount.toLocaleString()}`
+                        plan
                       )}
                     </Button>
                   );
