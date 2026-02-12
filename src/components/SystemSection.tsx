@@ -1,10 +1,10 @@
 import { ArrowRight } from "lucide-react";
 
 const steps = [
-  { num: "1", title: "Capture & Record", powered: "Taxdoctorcapture.org" },
-  { num: "2", title: "Payroll Oversight", powered: "Taxdoctorpayroll.com" },
+  { num: "1", title: "Capture & Record", powered: "Taxdoctorcapture.org", url: "https://taxdoctorcapture.org" },
+  { num: "2", title: "Payroll Oversight", powered: "Taxdoctorpayroll.com", url: "https://taxdoctorpayroll.com" },
   { num: "3", title: "Monthly Financial Reporting", powered: "Structured P&L + Insight" },
-  { num: "4", title: "Compliance Monitoring", powered: "TaxDoctor Flow" },
+  { num: "4", title: "Compliance Monitoring", powered: "TaxdoctorFlow.org", url: "https://taxdoctorflow.org" },
 ];
 
 const SystemSection = () => {
@@ -27,7 +27,21 @@ const SystemSection = () => {
                   {step.num}
                 </div>
                 <h3 className="font-bold text-base mb-2">{step.title}</h3>
-                <p className="text-xs text-muted-foreground font-medium">Powered by {step.powered}</p>
+                <p className="text-xs text-muted-foreground font-medium">
+                  Powered by{" "}
+                  {step.url ? (
+                    <a
+                      href={step.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-primary hover:underline font-semibold"
+                    >
+                      {step.powered}
+                    </a>
+                  ) : (
+                    step.powered
+                  )}
+                </p>
               </div>
               {i < steps.length - 1 && (
                 <ArrowRight className="hidden lg:block w-6 h-6 text-primary mx-2 shrink-0" />
