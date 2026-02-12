@@ -18,7 +18,12 @@ const HeroSection = () => {
             Structured bookkeeping, payroll oversight, and compliance monitoring for growing Nigerian businesses with 5–30 employees.
           </p>
           <div className="flex flex-col sm:flex-row gap-4">
-            <Button variant="hero" size="lg" className="rounded-full text-base px-8 py-6">
+            <Button 
+              variant="hero" 
+              size="lg" 
+              className="rounded-full text-base px-8 py-6"
+              onClick={() => window.open("https://api.leadconnectorhq.com/widget/bookings/consult-taxdoctor", "_blank")}
+            >
               Book Financial Diagnostic
             </Button>
             <Button variant="hero-outline" size="lg" className="rounded-full text-base px-8 py-6">
