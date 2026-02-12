@@ -21,7 +21,12 @@ const FinalCTA = () => {
           >
             Book Financial Diagnostic
           </Button>
-          <Button variant="hero-outline" size="lg" className="rounded-full text-base px-8 py-6 border-primary text-primary">
+          <Button 
+            variant="hero-outline" 
+            size="lg" 
+            className="rounded-full text-base px-8 py-6 border-primary text-primary"
+            onClick={() => window.open("https://bit.ly/Reach_Taxdoctor", "_blank")}
+          >
             Schedule Consultation
           </Button>
         </div>
