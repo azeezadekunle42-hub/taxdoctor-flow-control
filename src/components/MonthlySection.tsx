@@ -1,4 +1,5 @@
 import { BookOpen, Building2, Users, BarChart3, PieChart, CalendarCheck, FolderSync } from "lucide-react";
+import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 
 const deliverables = [
   { icon: BookOpen, title: "Closed Monthly Books" },
@@ -11,8 +12,9 @@ const deliverables = [
 ];
 
 const MonthlySection = () => {
+  const { ref, isVisible } = useScrollAnimation();
   return (
-    <section className="py-20 md:py-28 bg-secondary">
+    <section ref={ref} className={`py-20 md:py-28 bg-secondary transition-all duration-700 ${isVisible ? "opacity-100" : "opacity-0"}`}>
       <div className="container mx-auto px-6">
         <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight mb-14">
           What You Receive Every Month

@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Check } from "lucide-react";
+import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 
 const tiers = [
   {
@@ -38,8 +39,9 @@ const tiers = [
 ];
 
 const PricingSection = () => {
+  const { ref, isVisible } = useScrollAnimation();
   return (
-    <section id="pricing" className="py-20 md:py-28 bg-secondary">
+    <section ref={ref} id="pricing" className={`py-20 md:py-28 bg-secondary transition-all duration-700 ${isVisible ? "opacity-100" : "opacity-0"}`}>
       <div className="container mx-auto px-6">
         <div className="max-w-2xl mb-14">
           <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight mb-4">

@@ -1,9 +1,11 @@
 import { Button } from "@/components/ui/button";
 import dashboardMockup from "@/assets/dashboard-mockup.jpg";
+import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 
 const HeroSection = () => {
+  const { ref, isVisible } = useScrollAnimation();
   return (
-    <section className="relative pt-32 pb-20 md:pt-40 md:pb-28 overflow-hidden">
+    <section ref={ref} className={`relative pt-32 pb-20 md:pt-40 md:pb-28 overflow-hidden transition-all duration-700 ${isVisible ? "opacity-100" : "opacity-0"}`}>
       <div className="container mx-auto px-6">
         <div className="max-w-3xl mb-12">
           <div className="inline-block mb-4 px-4 py-1.5 rounded-full bg-primary/10 text-sm font-semibold text-foreground">

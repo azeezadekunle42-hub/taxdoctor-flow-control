@@ -1,4 +1,5 @@
 import { Check } from "lucide-react";
+import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 
 const criteria = [
   "5–30 employees",
@@ -9,8 +10,9 @@ const criteria = [
 ];
 
 const WhoIsForSection = () => {
+  const { ref, isVisible } = useScrollAnimation();
   return (
-    <section className="py-20 md:py-28">
+    <section ref={ref} className={`py-20 md:py-28 transition-all duration-700 ${isVisible ? "opacity-100" : "opacity-0"}`}>
       <div className="container mx-auto px-6">
         <div className="max-w-xl">
           <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight mb-10">
