@@ -12,6 +12,10 @@ const sharedFeatures = [
   "Staff cost percentage analysis",
   "Compliance calendar tracking",
   "Year-end coordination",
+  "Quarterly advisory review",
+  "Audited financial statement",
+  "Tax filing",
+  "CAC annual returns",
 ];
 
 const tiers = [
