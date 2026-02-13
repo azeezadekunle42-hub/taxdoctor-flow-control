@@ -15,7 +15,7 @@ const HeroSection = () => {
             Install Monthly Financial Control In Your Business.
           </h1>
           <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mb-8 leading-relaxed">
-            Structured bookkeeping, payroll oversight, and compliance monitoring for growing Nigerian businesses with 5–30 employees.
+            Structured bookkeeping, payroll oversight, and compliance monitoring for growing Nigerian businesses.
           </p>
           <div className="flex flex-col sm:flex-row gap-4">
             <Button 
