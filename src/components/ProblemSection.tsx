@@ -2,12 +2,12 @@ import { EyeOff, AlertTriangle, Building2, Users, CalendarX, HelpCircle } from "
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 
 const problems = [
-  { icon: EyeOff, title: "Cash Blindness", desc: "You can't manage what you can't see. Decisions made blind." },
-  { icon: AlertTriangle, title: "Payroll Errors Compound", desc: "Small mistakes grow into costly liabilities over months." },
-  { icon: Building2, title: "Banks Go Unreconciled", desc: "Cash position unknown. Fraud risk increases silently." },
-  { icon: Users, title: "Payroll Creep Eats Margins", desc: "Staff costs climb without visibility or control." },
-  { icon: CalendarX, title: "Tax Deadlines Cost You", desc: "Penalties and interest accrue while you focus on growth." },
-  { icon: HelpCircle, title: "Profit Stays Unknown", desc: "Revenue grows but you can't tell if you're actually profitable." },
+  { icon: EyeOff, title: "Cash Blindness", desc: "You don't know how much money you actually have right now." },
+  { icon: AlertTriangle, title: "Payroll Errors Add Up", desc: "Wrong PAYE calculations, missed pension. Small today, big problem in 6 months." },
+  { icon: Building2, title: "Banks Never Reconciled", desc: "Your book balance and bank balance don't match. You wouldn't know if money went missing." },
+  { icon: Users, title: "Payroll Keeps Growing", desc: "Staff costs keep climbing but nobody's tracking the percentage against revenue." },
+  { icon: CalendarX, title: "Tax Deadlines Slip", desc: "FIRS penalties, late VAT returns, PAYE remittance delays. All avoidable." },
+  { icon: HelpCircle, title: "No Idea If You're Profitable", desc: "Sales are up but is the business actually making money? You're not sure." },
 ];
 
 const ProblemSection = () => {
