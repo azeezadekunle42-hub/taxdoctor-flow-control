@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import dashboardMockup from "@/assets/dashboard-mockup.jpg";
+import DashboardMockup from "@/components/DashboardMockup";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 
 const HeroSection = () => {
@@ -36,14 +36,7 @@ const HeroSection = () => {
             </Button>
           </div>
         </div>
-        <div className="rounded-2xl overflow-hidden shadow-2xl border border-border">
-          <img
-            src={dashboardMockup}
-            alt="TaxDoctor Financial Control Dashboard showing Monthly P&L, Payroll Summary, Bank Reconciliation and Compliance Calendar"
-            className="w-full h-auto"
-            loading="eager"
-          />
-        </div>
+        <DashboardMockup />
       </div>
     </section>
   );
