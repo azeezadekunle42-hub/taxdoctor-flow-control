@@ -28,6 +28,11 @@ const tiers = [
     monthlyAmount: 75000,
     annualAmount: 750000,
     highlighted: false,
+    segmentation: {
+      employees: "≤ 10 employees",
+      bankAccounts: "≤ 2 bank accounts",
+      transactions: "≤ 200 transactions/month",
+    },
   },
   {
     name: "Growth Control",
@@ -38,6 +43,11 @@ const tiers = [
     monthlyAmount: 100000,
     annualAmount: 1000000,
     highlighted: true,
+    segmentation: {
+      employees: "10–25 employees",
+      bankAccounts: "2–4 bank accounts",
+      transactions: "200–500 transactions/month",
+    },
   },
   {
     name: "Premium Control",
@@ -48,6 +58,11 @@ const tiers = [
     monthlyAmount: 150000,
     annualAmount: 1500000,
     highlighted: false,
+    segmentation: {
+      employees: "25+ employees",
+      bankAccounts: "4+ bank accounts",
+      transactions: "500+ transactions/month",
+    },
   },
 ];
 
@@ -131,9 +146,19 @@ const PricingSection = () => {
                 <span className="text-4xl font-extrabold">{tier.turnover}</span>
                 <p className="text-muted-foreground text-sm mt-1">{tier.turnoverLabel}</p>
               </div>
-              <div className="mb-6 text-sm text-muted-foreground">
-                <p><span className="font-semibold text-foreground">{tier.monthly}</span> /month</p>
-                <p><span className="font-semibold text-foreground">{tier.annual}</span> /year</p>
+              <div className="mb-6 space-y-3">
+                <div className="text-sm text-muted-foreground">
+                  <p><span className="font-semibold text-foreground">{tier.monthly}</span> /month</p>
+                  <p><span className="font-semibold text-foreground">{tier.annual}</span> /year</p>
+                </div>
+                <div className="border-t border-border pt-3 space-y-2">
+                  <p className="text-xs font-semibold text-foreground uppercase tracking-wide">Best For:</p>
+                  <ul className="space-y-1 text-xs text-muted-foreground">
+                    <li>• {tier.segmentation.employees}</li>
+                    <li>• {tier.segmentation.bankAccounts}</li>
+                    <li>• {tier.segmentation.transactions}</li>
+                  </ul>
+                </div>
               </div>
               <ul className="space-y-3 mb-8">
                 {sharedFeatures.map((f) => (
