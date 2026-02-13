@@ -6,9 +6,9 @@ const FinalCTA = () => {
   return (
     <section ref={ref} className="py-20 md:py-28 bg-surface-dark text-surface-dark-foreground">
       <div className="container mx-auto px-6 text-center">
-        <h2 className={`text-3xl md:text-5xl font-extrabold tracking-tight mb-6 text-balance ${isVisible ? "animate-scale-up" : "opacity-0"}`}>
-          Install Financial Structure Before Growth Breaks You.
-        </h2>
+         <h2 className={`text-3xl md:text-5xl font-extrabold tracking-tight mb-6 text-balance ${isVisible ? "animate-scale-up" : "opacity-0"}`}>
+           You're Growing. Your Financial Clarity Should Keep Up.
+         </h2>
         <p className={`text-surface-dark-foreground/70 text-lg mb-10 max-w-xl mx-auto ${isVisible ? "animate-fade-up stagger-2" : "opacity-0"}`}>
           Get a clear picture of your financial health with a guided diagnostic session.
         </p>
