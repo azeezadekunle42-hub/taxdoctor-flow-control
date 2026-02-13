@@ -17,9 +17,9 @@ const FinalCTA = () => {
             variant="hero" 
             size="lg" 
             className="rounded-full text-base px-8 py-6 btn-shine"
-            onClick={() => document.getElementById("pricing")?.scrollIntoView({ behavior: "smooth" })}
+            onClick={() => window.open("https://wa.me/message/BVWNIZ3NCIU7E1", "_blank")}
           >
-            Book Financial Diagnostic
+            Learn More
           </Button>
           <Button 
             variant="hero-outline" 
