@@ -123,7 +123,7 @@ const PricingSection = () => {
           </h2>
           <span className={`accent-line ${isVisible ? "animate-scale-up stagger-2" : "opacity-0"}`} />
           <p className={`text-muted-foreground text-lg mt-4 ${isVisible ? "animate-fade-up stagger-2" : "opacity-0"}`}>
-            No hourly billing. Defined scope. Transparent structure.
+            You know the price before you start. Same scope every month.
           </p>
         </div>
         <div className="grid md:grid-cols-3 gap-6">

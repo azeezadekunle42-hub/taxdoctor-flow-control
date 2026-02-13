@@ -27,7 +27,7 @@ const HeroSection = () => {
                isVisible ? "animate-fade-up stagger-3" : "opacity-0"
              }`}
            >
-             We close your books every month, catch payroll errors before they compound, and keep you compliant — so you can focus on growth.
+             We close your books every month, catch payroll mistakes early, and make sure you never miss a filing deadline.
            </p>
           <div
             className={`flex flex-col sm:flex-row gap-4 ${

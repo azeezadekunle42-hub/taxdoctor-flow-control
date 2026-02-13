@@ -19,7 +19,7 @@ const SystemSection = () => {
           </h2>
           <span className={`accent-line ${isVisible ? "animate-scale-up stagger-2" : "opacity-0"}`} />
           <p className={`text-muted-foreground text-lg leading-relaxed mt-4 ${isVisible ? "animate-fade-up stagger-2" : "opacity-0"}`}>
-            This is not traditional bookkeeping. It is a structured monthly financial control framework installed in your business — powered by integrated technology at every step.
+            This isn't bookkeeping. It's a monthly financial control process we run inside your business, backed by our own tools.
           </p>
         </div>
         <div className="flex flex-col lg:flex-row items-stretch gap-4">

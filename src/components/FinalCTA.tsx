@@ -10,7 +10,7 @@ const FinalCTA = () => {
            You're Growing. Your Financial Clarity Should Keep Up.
          </h2>
         <p className={`text-surface-dark-foreground/70 text-lg mb-10 max-w-xl mx-auto ${isVisible ? "animate-fade-up stagger-2" : "opacity-0"}`}>
-          Get a clear picture of your financial health with a guided diagnostic session.
+          Let's look at your books together. 30 minutes, no pressure.
         </p>
         <div className={`flex flex-col sm:flex-row gap-4 justify-center ${isVisible ? "animate-fade-up stagger-3" : "opacity-0"}`}>
           <Button 

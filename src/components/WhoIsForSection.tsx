@@ -2,11 +2,11 @@ import { Check } from "lucide-react";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 
 const criteria = [
-  "Businesses with active payroll",
-  "Founder-led",
-  "Growing operations",
-  "No internal finance manager",
-  "Revenue generating and scaling",
+  "You have staff on payroll",
+  "You run the business yourself",
+  "Things are getting busier",
+  "You don't have a finance person",
+  "You're making money but the numbers are messy",
 ];
 
 const WhoIsForSection = () => {
