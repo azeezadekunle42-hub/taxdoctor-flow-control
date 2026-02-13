@@ -11,12 +11,13 @@ const rows = [
 const ComparisonSection = () => {
   const { ref, isVisible } = useScrollAnimation();
   return (
-    <section ref={ref} className={`py-20 md:py-28 transition-all duration-700 ${isVisible ? "opacity-100" : "opacity-0"}`}>
+    <section ref={ref} className="py-20 md:py-28">
       <div className="container mx-auto px-6">
-        <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight mb-14">
+        <h2 className={`text-3xl md:text-4xl font-extrabold tracking-tight mb-2 ${isVisible ? "animate-fade-up" : "opacity-0"}`}>
           Why This Is Different
         </h2>
-        <div className="overflow-x-auto">
+        <span className={`accent-line mb-14 ${isVisible ? "animate-scale-up stagger-2" : "opacity-0"}`} />
+        <div className="overflow-x-auto mt-14">
           <table className="w-full max-w-3xl">
             <thead>
               <tr>
@@ -29,8 +30,11 @@ const ComparisonSection = () => {
               </tr>
             </thead>
             <tbody>
-              {rows.map((r) => (
-                <tr key={r.system} className="border-t border-border">
+              {rows.map((r, i) => (
+                <tr
+                  key={r.system}
+                  className={`border-t border-border ${isVisible ? `animate-fade-up stagger-${i + 3}` : "opacity-0"}`}
+                >
                   <td className="py-4 pr-8 font-semibold text-sm">{r.system}</td>
                   <td className="py-4 text-sm text-muted-foreground">{r.traditional}</td>
                 </tr>
