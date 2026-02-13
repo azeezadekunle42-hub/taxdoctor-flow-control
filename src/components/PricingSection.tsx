@@ -141,24 +141,17 @@ const PricingSection = () => {
                   Most Popular
                 </span>
               )}
-              <h3 className="text-xl font-bold mb-2">{tier.name}</h3>
-              <div className="mb-4">
-                <span className="text-4xl font-extrabold">{tier.turnover}</span>
-                <p className="text-muted-foreground text-sm mt-1">{tier.turnoverLabel}</p>
+              <h3 className="text-xl font-bold mb-4">{tier.name}</h3>
+              <div className="mb-4 text-sm text-muted-foreground">
+                <p><span className="text-3xl font-extrabold text-foreground">{tier.monthly}</span> /month</p>
+                <p><span className="font-semibold text-foreground">{tier.annual}</span> /year</p>
               </div>
-              <div className="mb-6 space-y-3">
-                <div className="text-sm text-muted-foreground">
-                  <p><span className="font-semibold text-foreground">{tier.monthly}</span> /month</p>
-                  <p><span className="font-semibold text-foreground">{tier.annual}</span> /year</p>
-                </div>
-                <div className="border-t border-border pt-3 space-y-2">
-                  <p className="text-xs font-semibold text-foreground uppercase tracking-wide">Best For:</p>
-                  <ul className="space-y-1 text-xs text-muted-foreground">
-                    <li>• {tier.segmentation.employees}</li>
-                    <li>• {tier.segmentation.bankAccounts}</li>
-                    <li>• {tier.segmentation.transactions}</li>
-                  </ul>
-                </div>
+              <div className="mb-6 border-t border-border pt-3 space-y-1">
+                <ul className="space-y-1 text-xs text-muted-foreground">
+                  <li>• {tier.segmentation.employees}</li>
+                  <li>• {tier.segmentation.bankAccounts}</li>
+                  <li>• {tier.segmentation.transactions}</li>
+                </ul>
               </div>
               <ul className="space-y-3 mb-8">
                 {sharedFeatures.map((f) => (
