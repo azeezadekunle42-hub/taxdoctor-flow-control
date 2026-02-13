@@ -32,7 +32,7 @@ const StickyHeader = () => {
           variant="hero" 
           size="sm" 
           className="rounded-full px-6 btn-shine"
-          onClick={() => window.open("https://paystack.shop/pay/Tax_Consultation", "_blank")}
+          onClick={() => document.getElementById("pricing")?.scrollIntoView({ behavior: "smooth" })}
         >
           Schedule Consultation
         </Button>

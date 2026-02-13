@@ -17,7 +17,7 @@ const FinalCTA = () => {
             variant="hero" 
             size="lg" 
             className="rounded-full text-base px-8 py-6 btn-shine"
-            onClick={() => window.open("https://api.leadconnectorhq.com/widget/bookings/consult-taxdoctor", "_blank")}
+            onClick={() => document.getElementById("pricing")?.scrollIntoView({ behavior: "smooth" })}
           >
             Book Financial Diagnostic
           </Button>
@@ -25,7 +25,7 @@ const FinalCTA = () => {
             variant="hero-outline" 
             size="lg" 
             className="rounded-full text-base px-8 py-6 border-primary text-primary"
-            onClick={() => window.open("https://paystack.shop/pay/Tax_Consultation", "_blank")}
+            onClick={() => document.getElementById("pricing")?.scrollIntoView({ behavior: "smooth" })}
           >
             Schedule Consultation
           </Button>

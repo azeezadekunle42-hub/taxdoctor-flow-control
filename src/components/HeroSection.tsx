@@ -38,7 +38,7 @@ const HeroSection = () => {
               variant="hero" 
               size="lg" 
               className="rounded-full text-base px-8 py-6 btn-shine"
-              onClick={() => window.open("https://api.leadconnectorhq.com/widget/bookings/consult-taxdoctor", "_blank")}
+             onClick={() => document.getElementById("pricing")?.scrollIntoView({ behavior: "smooth" })}
             >
               See What You're Missing — Free
             </Button>
@@ -46,7 +46,7 @@ const HeroSection = () => {
               variant="hero-outline" 
               size="lg" 
               className="rounded-full text-base px-8 py-6"
-              onClick={() => window.open("https://paystack.shop/pay/Tax_Consultation", "_blank")}
+              onClick={() => document.getElementById("pricing")?.scrollIntoView({ behavior: "smooth" })}
             >
               Schedule Consultation
             </Button>
