@@ -1,4 +1,5 @@
 import { ArrowRight } from "lucide-react";
+import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 
 const steps = [
   { num: "1", title: "Capture & Record", powered: "Taxdoctorcapture.org", url: "https://taxdoctorcapture.org" },
@@ -8,21 +9,26 @@ const steps = [
 ];
 
 const SystemSection = () => {
+  const { ref, isVisible } = useScrollAnimation();
   return (
-    <section id="system" className="py-20 md:py-28">
+    <section ref={ref} id="system" className="py-20 md:py-28">
       <div className="container mx-auto px-6">
         <div className="max-w-2xl mb-14">
-          <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight mb-4">
+          <h2 className={`text-3xl md:text-4xl font-extrabold tracking-tight mb-4 ${isVisible ? "animate-fade-up" : "opacity-0"}`}>
             The TaxDoctor Financial Control System™
           </h2>
-          <p className="text-muted-foreground text-lg leading-relaxed">
+          <span className={`accent-line ${isVisible ? "animate-scale-up stagger-2" : "opacity-0"}`} />
+          <p className={`text-muted-foreground text-lg leading-relaxed mt-4 ${isVisible ? "animate-fade-up stagger-2" : "opacity-0"}`}>
             This is not traditional bookkeeping. It is a structured monthly financial control framework installed in your business — powered by integrated technology at every step.
           </p>
         </div>
         <div className="flex flex-col lg:flex-row items-stretch gap-4">
           {steps.map((step, i) => (
-            <div key={step.num} className="flex items-center flex-1">
-              <div className="flex-1 rounded-xl border-2 border-border bg-card p-6 text-center hover:border-primary transition-colors">
+            <div
+              key={step.num}
+              className={`flex items-center flex-1 ${isVisible ? `animate-slide-in-left stagger-${i + 2}` : "opacity-0"}`}
+            >
+              <div className="flex-1 rounded-xl border-2 border-border bg-card p-6 text-center card-hover">
                 <div className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold text-lg mx-auto mb-4">
                   {step.num}
                 </div>

@@ -13,16 +13,22 @@ const problems = [
 const ProblemSection = () => {
   const { ref, isVisible } = useScrollAnimation();
   return (
-    <section ref={ref} id="problem" className={`py-20 md:py-28 bg-secondary transition-all duration-700 ${isVisible ? "opacity-100" : "opacity-0"}`}>
+    <section ref={ref} id="problem" className="py-20 md:py-28 bg-secondary">
       <div className="container mx-auto px-6">
         <div className="max-w-2xl mb-14">
-          <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight mb-4">
+          <h2 className={`text-3xl md:text-4xl font-extrabold tracking-tight mb-4 ${isVisible ? "animate-fade-up" : "opacity-0"}`}>
             Growth Without Financial Structure Creates Risk
           </h2>
+          <span className={`accent-line ${isVisible ? "animate-scale-up stagger-2" : "opacity-0"}`} />
         </div>
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {problems.map((p) => (
-            <div key={p.title} className="bg-card rounded-xl p-6 shadow-sm border border-border hover:shadow-md transition-shadow">
+          {problems.map((p, i) => (
+            <div
+              key={p.title}
+              className={`bg-card rounded-xl p-6 shadow-sm border border-border card-hover ${
+                isVisible ? `animate-fade-up stagger-${i + 1}` : "opacity-0"
+              }`}
+            >
               <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
                 <p.icon className="w-5 h-5 text-primary" strokeWidth={2.5} />
               </div>

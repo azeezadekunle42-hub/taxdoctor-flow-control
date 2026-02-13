@@ -100,25 +100,26 @@ const PricingSection = () => {
   };
 
   return (
-    <section ref={ref} id="pricing" className={`py-20 md:py-28 bg-secondary transition-all duration-700 ${isVisible ? "opacity-100" : "opacity-0"}`}>
+    <section ref={ref} id="pricing" className="py-20 md:py-28 bg-secondary">
       <div className="container mx-auto px-6">
         <div className="max-w-2xl mb-14">
-          <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight mb-4">
+          <h2 className={`text-3xl md:text-4xl font-extrabold tracking-tight mb-4 ${isVisible ? "animate-fade-up" : "opacity-0"}`}>
             Pricing Structure
           </h2>
-          <p className="text-muted-foreground text-lg">
+          <span className={`accent-line ${isVisible ? "animate-scale-up stagger-2" : "opacity-0"}`} />
+          <p className={`text-muted-foreground text-lg mt-4 ${isVisible ? "animate-fade-up stagger-2" : "opacity-0"}`}>
             No hourly billing. Defined scope. Transparent structure.
           </p>
         </div>
         <div className="grid md:grid-cols-3 gap-6">
-          {tiers.map((tier) => (
+          {tiers.map((tier, i) => (
             <div
               key={tier.name}
-              className={`rounded-2xl p-8 border-2 transition-shadow ${
+              className={`rounded-2xl p-8 border-2 card-hover ${
                 tier.highlighted
                   ? "border-primary bg-card shadow-xl scale-[1.02]"
                   : "border-border bg-card shadow-sm"
-              }`}
+              } ${isVisible ? `animate-fade-up stagger-${i + 3}` : "opacity-0"}`}
             >
               {tier.highlighted && (
                 <span className="inline-block mb-4 px-3 py-1 rounded-full bg-primary text-primary-foreground text-xs font-bold uppercase tracking-wide">
@@ -154,7 +155,7 @@ const PricingSection = () => {
                     <Button
                       key={plan}
                       variant={tier.highlighted ? "hero" : "hero-outline"}
-                      className="w-full rounded-full"
+                      className={`w-full rounded-full ${tier.highlighted ? "btn-shine" : ""}`}
                       disabled={isLoading}
                       onClick={() => handlePayment(tier.name, plan, amount)}
                     >

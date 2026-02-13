@@ -1,5 +1,6 @@
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Cell } from "recharts";
 import { CheckCircle, Clock, AlertTriangle } from "lucide-react";
+import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 
 const plData = [
   { month: "Jan", revenue: 4200000, expenses: 2800000 },
@@ -26,10 +27,25 @@ const statusIcon = (status: string) => {
 };
 
 const DashboardMockup = () => {
+  const { ref, isVisible } = useScrollAnimation({ threshold: 0.2 });
+
   return (
-    <div className="rounded-2xl overflow-hidden border border-border bg-surface-dark text-surface-dark-foreground p-4 md:p-6">
+    <div
+      ref={ref}
+      className="rounded-2xl overflow-hidden border border-border bg-surface-dark text-surface-dark-foreground p-4 md:p-6 relative"
+    >
+      {/* Shimmer overlay */}
+      <div
+        className="absolute inset-0 pointer-events-none opacity-[0.03]"
+        style={{
+          backgroundImage: "linear-gradient(90deg, transparent 0%, hsl(44 100% 48%) 50%, transparent 100%)",
+          backgroundSize: "200% 100%",
+          animation: isVisible ? "shimmer 3s linear infinite" : "none",
+        }}
+      />
+
       {/* Header */}
-      <div className="flex items-center justify-between mb-5">
+      <div className="flex items-center justify-between mb-5 relative z-10">
         <div>
           <h3 className="text-sm font-semibold text-surface-dark-foreground/60 uppercase tracking-wider">
             Financial Control Dashboard
@@ -40,9 +56,9 @@ const DashboardMockup = () => {
       </div>
 
       {/* Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 relative z-10">
         {/* Monthly P&L */}
-        <div className="rounded-xl bg-surface-dark-foreground/5 border border-surface-dark-foreground/10 p-4">
+        <div className={`rounded-xl bg-surface-dark-foreground/5 border border-surface-dark-foreground/10 p-4 ${isVisible ? "animate-fade-up stagger-1" : "opacity-0"}`}>
           <h4 className="text-xs font-semibold uppercase tracking-wider text-surface-dark-foreground/50 mb-3">
             Monthly Profit & Loss
           </h4>
@@ -63,12 +79,12 @@ const DashboardMockup = () => {
                   tickLine={false}
                   width={48}
                 />
-                <Bar dataKey="revenue" radius={[3, 3, 0, 0]} name="Revenue">
+                <Bar dataKey="revenue" radius={[3, 3, 0, 0]} name="Revenue" isAnimationActive={isVisible} animationDuration={1200}>
                   {plData.map((_, i) => (
                     <Cell key={i} fill="hsl(44 100% 48%)" />
                   ))}
                 </Bar>
-                <Bar dataKey="expenses" radius={[3, 3, 0, 0]} name="Expenses">
+                <Bar dataKey="expenses" radius={[3, 3, 0, 0]} name="Expenses" isAnimationActive={isVisible} animationDuration={1200}>
                   {plData.map((_, i) => (
                     <Cell key={i} fill="hsl(44 100% 48% / 0.3)" />
                   ))}
@@ -87,7 +103,7 @@ const DashboardMockup = () => {
         </div>
 
         {/* Payroll Summary */}
-        <div className="rounded-xl bg-surface-dark-foreground/5 border border-surface-dark-foreground/10 p-4">
+        <div className={`rounded-xl bg-surface-dark-foreground/5 border border-surface-dark-foreground/10 p-4 ${isVisible ? "animate-fade-up stagger-2" : "opacity-0"}`}>
           <h4 className="text-xs font-semibold uppercase tracking-wider text-surface-dark-foreground/50 mb-3">
             Payroll Summary
           </h4>
@@ -116,7 +132,7 @@ const DashboardMockup = () => {
         </div>
 
         {/* Bank Reconciliation */}
-        <div className="rounded-xl bg-surface-dark-foreground/5 border border-surface-dark-foreground/10 p-4">
+        <div className={`rounded-xl bg-surface-dark-foreground/5 border border-surface-dark-foreground/10 p-4 ${isVisible ? "animate-fade-up stagger-3" : "opacity-0"}`}>
           <h4 className="text-xs font-semibold uppercase tracking-wider text-surface-dark-foreground/50 mb-3">
             Bank Reconciliation
           </h4>
@@ -156,7 +172,7 @@ const DashboardMockup = () => {
         </div>
 
         {/* Compliance Calendar */}
-        <div className="rounded-xl bg-surface-dark-foreground/5 border border-surface-dark-foreground/10 p-4">
+        <div className={`rounded-xl bg-surface-dark-foreground/5 border border-surface-dark-foreground/10 p-4 ${isVisible ? "animate-fade-up stagger-4" : "opacity-0"}`}>
           <h4 className="text-xs font-semibold uppercase tracking-wider text-surface-dark-foreground/50 mb-3">
             Compliance Calendar
           </h4>
