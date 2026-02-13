@@ -2,11 +2,11 @@ import { Check } from "lucide-react";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 
 const criteria = [
-  "5–30 employees",
+  "Businesses with active payroll",
   "Founder-led",
   "Growing operations",
   "No internal finance manager",
-  "₦20m–₦100m turnover",
+  "Revenue generating and scaling",
 ];
 
 const WhoIsForSection = () => {
