@@ -27,7 +27,7 @@ const FinalCTA = () => {
             className="rounded-full text-base px-8 py-6 border-primary text-primary"
             onClick={() => document.getElementById("pricing")?.scrollIntoView({ behavior: "smooth" })}
           >
-            Schedule Consultation
+            Get Started
           </Button>
         </div>
       </div>

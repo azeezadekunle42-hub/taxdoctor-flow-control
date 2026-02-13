@@ -34,7 +34,7 @@ const StickyHeader = () => {
           className="rounded-full px-6 btn-shine"
           onClick={() => document.getElementById("pricing")?.scrollIntoView({ behavior: "smooth" })}
         >
-          Schedule Consultation
+          Get Started
         </Button>
       </div>
     </header>
