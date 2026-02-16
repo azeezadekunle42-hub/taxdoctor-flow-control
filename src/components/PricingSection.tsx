@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Check, Loader2 } from "lucide-react";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { toast } from "sonner";
+import { trackEvent } from "@/lib/fbpixel";
 
 const sharedFeatures = [
   "Monthly book closure",
@@ -81,6 +82,13 @@ const PricingSection = () => {
     }
 
     try {
+      trackEvent('InitiateCheckout', {
+        content_name: tierName,
+        content_category: plan,
+        value: amount / 100,
+        currency: 'NGN',
+      });
+
       const callbackUrl = `${window.location.origin}/payment-verification`;
       const res = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/initialize-payment`,
