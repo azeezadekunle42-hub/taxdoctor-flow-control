@@ -110,6 +110,8 @@
   width: 60px;
   height: 3px;
   margin-top: 12px;
+  margin-left: auto;
+  margin-right: auto;
   border-radius: 2px;
   background: linear-gradient(90deg, hsl(var(--primary)), hsl(var(--primary) / 0.2));
 }
