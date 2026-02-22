@@ -12,13 +12,13 @@ const ComparisonSection = () => {
   const { ref, isVisible } = useScrollAnimation();
   return (
     <section ref={ref} className="py-20 md:py-28">
-      <div className="container mx-auto px-6">
+      <div className="container mx-auto px-6 text-center">
          <h2 className={`text-3xl md:text-4xl font-extrabold tracking-tight mb-2 ${isVisible ? "animate-fade-up" : "opacity-0"}`}>
            Traditional Bookkeeper vs. Financial Control System
          </h2>
         <span className={`accent-line mb-14 ${isVisible ? "animate-scale-up stagger-2" : "opacity-0"}`} />
         <div className="overflow-x-auto mt-14">
-          <table className="w-full max-w-3xl">
+          <table className="w-full max-w-3xl mx-auto">
             <thead>
               <tr>
                 <th className="text-left pb-4 pr-8 font-bold text-sm text-primary uppercase tracking-wide">

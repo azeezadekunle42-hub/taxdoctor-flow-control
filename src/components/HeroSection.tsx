@@ -8,7 +8,7 @@ const HeroSection = () => {
   return (
     <section ref={ref} className="relative pt-32 pb-20 md:pt-40 md:pb-28 overflow-hidden">
       <div className="container mx-auto px-6">
-        <div className="max-w-3xl mb-12">
+        <div className="max-w-3xl mb-12 mx-auto text-center">
           <div
             className={`inline-block mb-4 px-4 py-1.5 rounded-full bg-primary/10 text-sm font-semibold text-foreground ${
               isVisible ? "animate-fade-down" : "opacity-0"
@@ -31,7 +31,7 @@ const HeroSection = () => {
              We close your books every month, catch payroll mistakes early, and make sure you never miss a filing deadline.
            </p>
           <div
-            className={`flex flex-col sm:flex-row gap-4 ${
+            className={`flex flex-col sm:flex-row gap-4 justify-center ${
               isVisible ? "animate-scale-up stagger-4" : "opacity-0"
             }`}
           >

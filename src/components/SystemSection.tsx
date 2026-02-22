@@ -13,7 +13,7 @@ const SystemSection = () => {
   return (
     <section ref={ref} id="system" className="py-20 md:py-28">
       <div className="container mx-auto px-6">
-        <div className="max-w-2xl mb-14">
+        <div className="max-w-2xl mb-14 mx-auto text-center">
           <h2 className={`text-3xl md:text-4xl font-extrabold tracking-tight mb-4 ${isVisible ? "animate-fade-up" : "opacity-0"}`}>
             The TaxDoctor Financial Control System™
           </h2>
