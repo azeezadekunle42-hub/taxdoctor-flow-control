@@ -15,7 +15,7 @@ const MonthlySection = () => {
   const { ref, isVisible } = useScrollAnimation();
   return (
     <section ref={ref} className="py-20 md:py-28 bg-secondary">
-      <div className="container mx-auto px-6">
+      <div className="container mx-auto px-6 text-center">
         <h2 className={`text-3xl md:text-4xl font-extrabold tracking-tight mb-2 ${isVisible ? "animate-fade-up" : "opacity-0"}`}>
           What You Receive Every Month
         </h2>
