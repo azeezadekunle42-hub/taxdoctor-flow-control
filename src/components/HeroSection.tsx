@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import DashboardMockup from "@/components/DashboardMockup";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
-import { trackEvent } from "@/lib/fbpixel";
+
 
 const HeroSection = () => {
   const { ref, isVisible } = useScrollAnimation();
@@ -40,8 +40,6 @@ const HeroSection = () => {
               size="lg" 
               className="rounded-full text-base px-8 py-6 btn-shine"
              onClick={() => {
-                trackEvent('Lead', { content_name: 'Hero CTA - See What You\'re Missing' });
-                document.getElementById("pricing")?.scrollIntoView({ behavior: "smooth" });
               }}
             >
               See What You're Missing — Free
@@ -51,8 +49,6 @@ const HeroSection = () => {
               size="lg" 
               className="rounded-full text-base px-8 py-6"
               onClick={() => {
-                trackEvent('Lead', { content_name: 'Hero CTA - Get Started' });
-                document.getElementById("pricing")?.scrollIntoView({ behavior: "smooth" });
               }}
             >
               Get Started

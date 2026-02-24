@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
-import { trackEvent } from "@/lib/fbpixel";
+
 
 const FinalCTA = () => {
   const { ref, isVisible } = useScrollAnimation();
@@ -19,7 +19,6 @@ const FinalCTA = () => {
             size="lg" 
             className="rounded-full text-base px-8 py-6 btn-shine"
             onClick={() => {
-              trackEvent('Contact', { content_name: 'Final CTA - Learn More (WhatsApp)' });
               window.open("https://wa.me/message/BVWNIZ3NCIU7E1", "_blank");
             }}
           >
@@ -30,7 +29,6 @@ const FinalCTA = () => {
             size="lg" 
             className="rounded-full text-base px-8 py-6 border-primary text-primary"
             onClick={() => {
-              trackEvent('Lead', { content_name: 'Final CTA - Get Started' });
               document.getElementById("pricing")?.scrollIntoView({ behavior: "smooth" });
             }}
           >
