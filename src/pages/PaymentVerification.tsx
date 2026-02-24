@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { CheckCircle, XCircle, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { trackEvent } from "@/lib/fbpixel";
+
 
 interface PaymentData {
   status: string;
@@ -20,7 +20,7 @@ const PaymentVerification = () => {
   const [loading, setLoading] = useState(true);
   const [payment, setPayment] = useState<PaymentData | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [hasTracked, setHasTracked] = useState(false);
+  
 
   useEffect(() => {
     const reference = searchParams.get("reference");
@@ -55,17 +55,6 @@ const PaymentVerification = () => {
     verifyPayment();
   }, [searchParams]);
 
-  useEffect(() => {
-    if (payment?.status === "success" && !hasTracked) {
-      trackEvent("Purchase", {
-        value: payment.amount / 100,
-        currency: "NGN",
-        content_name: `${payment.tier} — ${payment.plan}`,
-        content_type: "product",
-      });
-      setHasTracked(true);
-    }
-  }, [payment, hasTracked]);
 
   if (loading) {
     return (
