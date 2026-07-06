@@ -43,6 +43,7 @@ Deno.serve(async (req) => {
   }
 
   const url = new URL(req.url);
+  const view = url.searchParams.get('view');
   const dateParam = url.searchParams.get('date');
   const date = dateParam && isValidDate(dateParam) ? dateParam : todayInLagos();
   const { startUtc, endUtc } = lagosDayBoundsUtc(date);
@@ -51,6 +52,78 @@ Deno.serve(async (req) => {
     Deno.env.get('SUPABASE_URL')!,
     Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
   );
+
+  if (view === 'clients') {
+    const { data: rows, error } = await supabase
+      .from('orders')
+      .select('id,email,tier,plan_period,amount_kobo,status,created_at,paid_at')
+      .order('created_at', { ascending: false });
+    if (error) {
+      return new Response(JSON.stringify({ error: error.message }), {
+        status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    // Public email providers — for these we can't derive a company/firm name,
+    // so we report a generic label rather than exposing the personal address.
+    const PUBLIC_DOMAINS = new Set([
+      'gmail.com', 'yahoo.com', 'yahoo.co.uk', 'hotmail.com', 'outlook.com',
+      'live.com', 'icloud.com', 'me.com', 'aol.com', 'protonmail.com', 'proton.me',
+    ]);
+
+    const companyFromEmail = (email: string): string => {
+      const at = email.lastIndexOf('@');
+      if (at < 0) return '(unknown)';
+      const domain = email.slice(at + 1).toLowerCase();
+      if (!domain || PUBLIC_DOMAINS.has(domain)) return '(individual account)';
+      const base = domain.split('.')[0];
+      return base.charAt(0).toUpperCase() + base.slice(1);
+    };
+
+    // One entry per unique customer (email), using their most recent order.
+    const seen = new Set<string>();
+    const clients = [] as unknown[];
+    for (const r of rows ?? []) {
+      const key = (r.email || '').toLowerCase();
+      if (!key || seen.has(key)) continue;
+      seen.add(key);
+
+      const status =
+        r.status === 'paid' ? 'active'
+        : r.status === 'failed' ? 'past_due'
+        : r.status === 'pending' ? 'trial'
+        : 'inactive';
+
+      const naira = (r.amount_kobo || 0) / 100;
+      const period = (r.plan_period || '').toLowerCase();
+      let mrr = 0;
+      if (r.status === 'paid') {
+        if (period.includes('month')) mrr = naira;
+        else if (period.includes('year') || period.includes('annual')) mrr = Math.round(naira / 12);
+        else if (period.includes('quarter')) mrr = Math.round(naira / 3);
+      }
+
+      const segment = `${r.tier}${r.plan_period ? ` · ${r.plan_period}` : ''}`;
+      const joined_at = r.paid_at || r.created_at;
+
+      clients.push({
+        name: companyFromEmail(r.email || ''),
+        identifier: r.id,
+        segment,
+        status,
+        joined_at,
+        plan: {
+          name: `${r.tier}${r.plan_period ? ` (${r.plan_period})` : ''}`,
+          mrr,
+          comped: false,
+        },
+      });
+    }
+
+    return new Response(JSON.stringify({ clients }), {
+      status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
 
   // Created that day (any status)
   const createdQ = supabase
