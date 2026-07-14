@@ -94,7 +94,9 @@ Deno.serve(async (req) => {
         : r.status === 'pending' ? 'trial'
         : 'inactive';
 
-      const naira = (r.amount_kobo || 0) / 100;
+      // MRR is ex-VAT: prefer subtotal_kobo; fall back to amount_kobo for legacy rows.
+      const revenueKobo = (r as any).subtotal_kobo ?? r.amount_kobo ?? 0;
+      const naira = revenueKobo / 100;
       const period = (r.plan_period || '').toLowerCase();
       let mrr = 0;
       if (r.status === 'paid') {
