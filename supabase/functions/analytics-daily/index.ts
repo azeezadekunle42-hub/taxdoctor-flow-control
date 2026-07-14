@@ -56,7 +56,7 @@ Deno.serve(async (req) => {
   if (view === 'clients') {
     const { data: rows, error } = await supabase
       .from('orders')
-      .select('id,email,tier,plan_period,amount_kobo,status,created_at,paid_at')
+      .select('id,email,tier,plan_period,amount_kobo,subtotal_kobo,tax_kobo,status,created_at,paid_at')
       .order('created_at', { ascending: false });
     if (error) {
       return new Response(JSON.stringify({ error: error.message }), {
