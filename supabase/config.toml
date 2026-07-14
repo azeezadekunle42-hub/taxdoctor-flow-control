@@ -11,3 +11,6 @@ verify_jwt = false
 
 [functions.analytics-daily]
 verify_jwt = false
+
+[functions.ghl-order-ingest]
+verify_jwt = false
