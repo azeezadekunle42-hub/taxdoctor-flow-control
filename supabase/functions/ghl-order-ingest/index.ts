@@ -65,16 +65,25 @@ Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders });
   if (req.method !== 'POST') return new Response('Method not allowed', { status: 405, headers: corsHeaders });
 
+  // [DIAG] header names (not values — x-ghl-secret must not be logged)
+  const headerNames: string[] = [];
+  req.headers.forEach((_v, k) => headerNames.push(k));
+  console.log('[ghl-diag] header names:', headerNames);
+
   const expected = Deno.env.get('GHL_INGEST_SECRET') || '';
   const provided = req.headers.get('x-ghl-secret') || '';
   if (!expected || !provided || !timingSafeEqual(expected, provided)) {
+    console.log('[ghl-diag] auth failed', { hasExpected: !!expected, hasProvided: !!provided });
     return new Response(JSON.stringify({ error: 'Unauthorized' }), {
       status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
 
+  const rawBody = await req.text();
+  console.log('[ghl-diag] raw body:', rawBody);
   let payload: any;
-  try { payload = await req.json(); } catch {
+  try { payload = JSON.parse(rawBody); } catch {
+    console.log('[ghl-diag] JSON parse failed');
     return new Response(JSON.stringify({ error: 'Bad JSON' }), {
       status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
