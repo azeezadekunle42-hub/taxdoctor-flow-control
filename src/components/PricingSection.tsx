@@ -144,8 +144,8 @@ const PricingSection = () => {
               )}
               <h3 className="text-xl font-bold mb-4">{tier.name}</h3>
               <div className="mb-4 text-sm text-muted-foreground">
-                <p><span className="text-3xl font-extrabold text-foreground">{tier.monthly}</span> /month</p>
-                <p><span className="font-semibold text-foreground">{tier.annual}</span> /year</p>
+                <p>from <span className="text-3xl font-extrabold text-foreground">{tier.monthly}</span>/month</p>
+                <p className="text-xs mt-1">Reference rate — billed quarterly, half-yearly or annually</p>
               </div>
               <div className="mb-6 border-t border-border pt-3 space-y-1">
                 <ul className="space-y-1 text-xs text-muted-foreground">

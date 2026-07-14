@@ -52,12 +52,11 @@ function mapTier(name: string): string {
   return 'unknown';
 }
 
-function mapPeriod(name: string, amountKobo: number): string {
+function mapPeriod(name: string, _amountKobo: number): string {
   const n = (name || '').toLowerCase();
-  if (n.includes('annual') || n.includes('yearly') || n.includes('year')) return 'annual';
-  if (n.includes('half') || n.includes('semi') || n.includes('6-month') || n.includes('6 month')) return 'half_yearly';
   if (n.includes('quarter')) return 'quarterly';
-  if (n.includes('month')) return 'monthly';
+  if (n.includes('half') || n.includes('semi')) return 'half_yearly';
+  if (n.includes('annual') || n.includes('year')) return 'annual';
   return 'unknown';
 }
 
