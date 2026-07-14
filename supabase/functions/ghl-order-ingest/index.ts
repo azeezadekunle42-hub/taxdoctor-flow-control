@@ -115,6 +115,12 @@ Deno.serve(async (req) => {
 
   const tier = mapTier(productName);
   const plan_period = mapPeriod(productName, amount_kobo);
+  console.log('[ghl-diag] extracted:', {
+    email, invoiceId, amountRaw, amount_kobo, productName,
+    tier, tierOk: tier !== 'unknown',
+    plan_period, planPeriodOk: plan_period !== 'unknown',
+    paystackRef,
+  });
   if (tier === 'unknown' || plan_period === 'unknown') {
     console.warn('ghl-order-ingest: mapping incomplete', { productName, tier, plan_period });
   }
