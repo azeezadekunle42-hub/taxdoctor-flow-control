@@ -283,11 +283,32 @@ Deno.serve(async (req) => {
         const nextDateStr = next.toISOString().slice(0, 10); // YYYY-MM-DD
         console.log('[ghl-sync] next_invoice_date:', nextDateStr, `(${plan_period}, +${monthsAhead}mo)`);
 
-        await ghlCall('PUT', `/contacts/${contactId}`, {
+        // Use field ID + value shape. GHL silently ignores unknown key/field_value pairs
+        // and still returns 200; only the {id,value} shape actually writes DATE fields.
+        // Field: "FCS Next Invoice Date" (dataType=DATE, fieldKey=contact.next_invoice_date)
+        const NEXT_INVOICE_DATE_FIELD_ID = '9dz1ZgwtmxuiFIcjNvxs';
+        const putRes = await ghlCall('PUT', `/contacts/${contactId}`, {
           customFields: [
-            { key: 'contact.next_invoice_date', field_value: nextDateStr },
+            { id: NEXT_INVOICE_DATE_FIELD_ID, value: nextDateStr },
           ],
         });
+
+        // Verify — don't trust the 200. Read the contact back and check the field.
+        const verify = await ghlCall('GET', `/contacts/${contactId}`);
+        try {
+          const parsed = JSON.parse(verify.body);
+          const cfs = parsed?.contact?.customFields || [];
+          const stored = cfs.find((c: any) => c.id === NEXT_INVOICE_DATE_FIELD_ID);
+          if (stored && String(stored.value) === nextDateStr) {
+            console.log('[ghl-sync] next_invoice_date verified:', stored.value);
+          } else {
+            console.error('[ghl-sync] next_invoice_date NOT persisted', {
+              sent: nextDateStr, stored, putStatus: putRes.status,
+            });
+          }
+        } catch (e) {
+          console.error('[ghl-sync] verify parse failed:', e);
+        }
       } else {
         console.warn('[ghl-sync] plan_period unknown — skipping next_invoice_date update');
       }
