@@ -65,16 +65,25 @@ Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders });
   if (req.method !== 'POST') return new Response('Method not allowed', { status: 405, headers: corsHeaders });
 
+  // [DIAG] header names (not values — x-ghl-secret must not be logged)
+  const headerNames: string[] = [];
+  req.headers.forEach((_v, k) => headerNames.push(k));
+  console.log('[ghl-diag] header names:', headerNames);
+
   const expected = Deno.env.get('GHL_INGEST_SECRET') || '';
   const provided = req.headers.get('x-ghl-secret') || '';
   if (!expected || !provided || !timingSafeEqual(expected, provided)) {
+    console.log('[ghl-diag] auth failed', { hasExpected: !!expected, hasProvided: !!provided });
     return new Response(JSON.stringify({ error: 'Unauthorized' }), {
       status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
 
+  const rawBody = await req.text();
+  console.log('[ghl-diag] raw body:', rawBody);
   let payload: any;
-  try { payload = await req.json(); } catch {
+  try { payload = JSON.parse(rawBody); } catch {
+    console.log('[ghl-diag] JSON parse failed');
     return new Response(JSON.stringify({ error: 'Bad JSON' }), {
       status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
@@ -106,6 +115,12 @@ Deno.serve(async (req) => {
 
   const tier = mapTier(productName);
   const plan_period = mapPeriod(productName, amount_kobo);
+  console.log('[ghl-diag] extracted:', {
+    email, invoiceId, amountRaw, amount_kobo, productName,
+    tier, tierOk: tier !== 'unknown',
+    plan_period, planPeriodOk: plan_period !== 'unknown',
+    paystackRef,
+  });
   if (tier === 'unknown' || plan_period === 'unknown') {
     console.warn('ghl-order-ingest: mapping incomplete', { productName, tier, plan_period });
   }
