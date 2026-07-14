@@ -229,7 +229,122 @@ Deno.serve(async (req) => {
     console.error('email send threw:', e);
   }
 
+  // ============================================================
+  // GHL CRM push-back — never block the 200 back to GHL.
+  // API base: https://services.leadconnectorhq.com  (LeadConnector v2)
+  // Endpoints used:
+  //   GET  /contacts/?locationId=...&query=<email>   (lookup by email)
+  //   POST /contacts/                                (create if not found)
+  //   POST /contacts/{id}/tags                       (add tags)
+  //   PUT  /contacts/{id}                            (update custom field)
+  // Failure policy: any GHL call failure is logged (endpoint, status, body)
+  // and swallowed. The order is already recorded; we still return 200.
+  // Date format for the custom field: "YYYY-MM-DD" (ISO calendar date).
+  // ============================================================
+  try {
+    const ghlToken = Deno.env.get('GHL_API_TOKEN');
+    const locationId = Deno.env.get('GHL_LOCATION_ID');
+    if (!ghlToken || !locationId) {
+      console.warn('[ghl-sync] skipping — GHL_API_TOKEN or GHL_LOCATION_ID missing');
+    } else {
+      const GHL_BASE = 'https://services.leadconnectorhq.com';
+      const ghlHeaders = {
+        'Authorization': `Bearer ${ghlToken}`,
+        'Version': '2021-07-28',
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      };
+
+      async function ghlCall(method: string, path: string, body?: unknown) {
+        const url = `${GHL_BASE}${path}`;
+        try {
+          const res = await fetch(url, {
+            method,
+            headers: ghlHeaders,
+            body: body ? JSON.stringify(body) : undefined,
+          });
+          const text = await res.text();
+          if (!res.ok) {
+            console.error(`[ghl-sync] ${method} ${path} -> ${res.status}`, text);
+          } else {
+            console.log(`[ghl-sync] ${method} ${path} -> ${res.status}`);
+          }
+          let json: any = null;
+          try { json = text ? JSON.parse(text) : null; } catch { /* non-JSON */ }
+          return { ok: res.ok, status: res.status, body: text, json };
+        } catch (e) {
+          console.error(`[ghl-sync] ${method} ${path} threw:`, e);
+          return { ok: false, status: 0, body: String(e), json: null };
+        }
+      }
+
+      // 1. Lookup contact by email
+      let contactId: string | null = null;
+      const lookup = await ghlCall(
+        'GET',
+        `/contacts/?locationId=${encodeURIComponent(locationId)}&query=${encodeURIComponent(email)}`,
+      );
+      if (lookup.ok && lookup.json?.contacts?.length) {
+        // Prefer exact email match
+        const match = lookup.json.contacts.find(
+          (c: any) => (c.email || '').toLowerCase() === email.toLowerCase(),
+        ) || lookup.json.contacts[0];
+        contactId = match?.id || null;
+      }
+
+      // 2. Create contact if missing
+      if (!contactId) {
+        const created = await ghlCall('POST', '/contacts/', {
+          locationId,
+          email,
+          source: 'FCS GHL Ingest',
+        });
+        contactId = created.json?.contact?.id || created.json?.id || null;
+        if (!contactId) {
+          console.warn('[ghl-sync] could not resolve contactId after create; skipping tag/field updates');
+        }
+      }
+
+      if (contactId) {
+        // 3. Build tag from mapped tier + period (fallback pieces if unknown)
+        const tierSlug = tier.toLowerCase().replace(/\s+control$/, '').replace(/\s+/g, '-');
+        const periodSlug = plan_period.replace(/_/g, '-');
+        const productTag = `fcs-${tierSlug}-${periodSlug}`;
+
+        // 3a. Add tags (product + fcs-client)
+        await ghlCall('POST', `/contacts/${contactId}/tags`, {
+          tags: [productTag, 'fcs-client'],
+        });
+
+        // 3b. Update custom field "FCS Next Invoice Date"
+        const monthsAhead =
+          plan_period === 'quarterly' ? 3 :
+          plan_period === 'half_yearly' ? 6 :
+          plan_period === 'annual' ? 12 :
+          plan_period === 'monthly' ? 1 : 0;
+        if (monthsAhead > 0) {
+          const paid = new Date(paidAt);
+          const next = new Date(paid);
+          next.setUTCMonth(next.getUTCMonth() + monthsAhead);
+          const nextDateStr = next.toISOString().slice(0, 10); // YYYY-MM-DD
+          console.log('[ghl-sync] next_invoice_date computed:', nextDateStr, `(${plan_period}, +${monthsAhead}mo)`);
+
+          await ghlCall('PUT', `/contacts/${contactId}`, {
+            customFields: [
+              { key: 'contact.next_invoice_date', field_value: nextDateStr },
+            ],
+          });
+        } else {
+          console.warn('[ghl-sync] plan_period unknown — skipping next_invoice_date update');
+        }
+      }
+    }
+  } catch (e) {
+    console.error('[ghl-sync] threw (swallowed):', e);
+  }
+
   return new Response(JSON.stringify({ ok: true, reference, tier, plan_period, amount_kobo }), {
     status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
   });
 });
+
