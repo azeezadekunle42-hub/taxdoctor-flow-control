@@ -29,21 +29,6 @@ async function sendEmail(to: string, subject: string, html: string) {
   return { ok: res.ok, status: res.status, body: await res.text() };
 }
 
-function pick(obj: any, keys: string[]): any {
-  for (const k of keys) {
-    if (obj == null) return undefined;
-    const parts = k.split('.');
-    let cur = obj;
-    let ok = true;
-    for (const p of parts) {
-      if (cur && typeof cur === 'object' && p in cur) cur = cur[p];
-      else { ok = false; break; }
-    }
-    if (ok && cur !== undefined && cur !== null && cur !== '') return cur;
-  }
-  return undefined;
-}
-
 function mapTier(name: string): string {
   const n = (name || '').toLowerCase();
   if (n.includes('starter')) return 'Starter Control';
@@ -52,7 +37,7 @@ function mapTier(name: string): string {
   return 'unknown';
 }
 
-function mapPeriod(name: string, _amountKobo: number): string {
+function mapPeriod(name: string): string {
   const n = (name || '').toLowerCase();
   if (n.includes('quarter')) return 'quarterly';
   if (n.includes('half') || n.includes('semi')) return 'half_yearly';
@@ -64,7 +49,7 @@ Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders });
   if (req.method !== 'POST') return new Response('Method not allowed', { status: 405, headers: corsHeaders });
 
-  // [DIAG] header names (not values — x-ghl-secret must not be logged)
+  // [DIAG] header names
   const headerNames: string[] = [];
   req.headers.forEach((_v, k) => headerNames.push(k));
   console.log('[ghl-diag] header names:', headerNames);
@@ -88,51 +73,61 @@ Deno.serve(async (req) => {
     });
   }
 
-  const email = pick(payload, ['email', 'contact.email', 'customer.email', 'contact_email', 'buyer_email']);
-  const invoiceId = pick(payload, ['invoice_id', 'invoiceId', 'invoice.id', 'id']);
-  const productName = pick(payload, ['product_name', 'productName', 'product', 'line_item', 'lineItem.name', 'items.0.name', 'invoice.line_items.0.name']) || '';
-  const paystackRef = pick(payload, ['paystack_reference', 'paystackReference', 'reference', 'transaction_reference', 'payment_reference']);
-  const amountRaw = pick(payload, ['amount_kobo', 'amount', 'invoice.amount', 'total', 'invoice.total']);
+  // === Extraction (exact paths from real GHL payload) ===
+  const inv = payload?.invoice?._data || {};
+  const invRoot = payload?.invoice || {};
+  const item0 = Array.isArray(inv.invoiceItems) ? inv.invoiceItems[0] : undefined;
 
-  if (!email || !invoiceId || amountRaw === undefined) {
-    console.warn('ghl-order-ingest: missing required fields', { hasEmail: !!email, hasInvoice: !!invoiceId, hasAmount: amountRaw !== undefined });
+  const email: string | undefined =
+    payload?.email || inv?.contactDetails?.email;
+  const contactId: string | undefined = payload?.contact_id;
+  const invoiceId: string | undefined = inv?._id || invRoot?._id;
+  const productName: string = item0?.name || '';
+  const currency: string | undefined = inv?.currency;
+  const paidAtRaw: string | undefined = inv?.lastPaidAt;
+
+  // All amounts are NAIRA. No kobo heuristic.
+  const totalPaidN = Number(inv?.amountPaid ?? inv?.total ?? inv?.invoiceTotal);
+  const subtotalN = Number(inv?.totalSummary?.subTotal);
+  const taxN = Number(inv?.totalSummary?.tax);
+
+  if (!email || !invoiceId || !isFinite(totalPaidN) || totalPaidN <= 0) {
+    console.warn('ghl-order-ingest: missing required fields', {
+      hasEmail: !!email, hasInvoice: !!invoiceId, hasTotalPaid: isFinite(totalPaidN) && totalPaidN > 0,
+    });
     return new Response(JSON.stringify({ error: 'Missing email, invoice_id, or amount' }), {
       status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
 
-  // Amount: accept naira or kobo. Heuristic — integers >= 100000 with no fractional part are already kobo;
-  // otherwise treat as naira and convert.
-  const num = Number(amountRaw);
-  if (!isFinite(num) || num <= 0) {
-    return new Response(JSON.stringify({ error: 'Invalid amount' }), {
-      status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
-  }
-  const looksLikeKobo = Number.isInteger(num) && num >= 100000;
-  const amount_kobo = looksLikeKobo ? num : Math.round(num * 100);
+  const amount_kobo = Math.round(totalPaidN * 100);
+  const subtotal_kobo = isFinite(subtotalN) && subtotalN > 0 ? Math.round(subtotalN * 100) : null;
+  const tax_kobo = isFinite(taxN) && taxN >= 0 ? Math.round(taxN * 100) : null;
 
   const tier = mapTier(productName);
-  const plan_period = mapPeriod(productName, amount_kobo);
+  const plan_period = mapPeriod(productName);
   console.log('[ghl-diag] extracted:', {
-    email, invoiceId, amountRaw, amount_kobo, productName,
+    email, contactId, invoiceId, productName, currency,
+    totalPaidN, subtotalN, taxN,
+    amount_kobo, subtotal_kobo, tax_kobo,
     tier, tierOk: tier !== 'unknown',
     plan_period, planPeriodOk: plan_period !== 'unknown',
-    paystackRef,
   });
   if (tier === 'unknown' || plan_period === 'unknown') {
     console.warn('ghl-order-ingest: mapping incomplete', { productName, tier, plan_period });
   }
 
-  const reference = paystackRef ? String(paystackRef) : `ghl:${invoiceId}`;
-  const paidAt = new Date().toISOString();
+  const reference = `ghl:${invoiceId}`;
+  const paidAt = paidAtRaw && !isNaN(new Date(paidAtRaw).getTime())
+    ? new Date(paidAtRaw).toISOString()
+    : new Date().toISOString();
 
   const supabase = createClient(
     Deno.env.get('SUPABASE_URL')!,
     Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
   );
 
-  // Idempotency: check by reference first.
+  // Idempotency by reference.
   const { data: existing, error: fetchErr } = await supabase
     .from('orders')
     .select('id, status')
@@ -147,13 +142,18 @@ Deno.serve(async (req) => {
   }
 
   let alreadyPaid = false;
+  const orderFields = {
+    email, tier, plan_period, amount_kobo, subtotal_kobo, tax_kobo,
+    status: 'paid' as const, paid_at: paidAt, source: 'ghl' as const,
+  };
+
   if (existing) {
     if (existing.status === 'paid') {
       alreadyPaid = true;
     } else {
       const { error: updErr } = await supabase
         .from('orders')
-        .update({ email, tier, plan_period, amount_kobo, status: 'paid', paid_at: paidAt, source: 'ghl' })
+        .update(orderFields)
         .eq('reference', reference);
       if (updErr) {
         console.error('order update error', updErr);
@@ -163,12 +163,8 @@ Deno.serve(async (req) => {
       }
     }
   } else {
-    const { error: insErr } = await supabase.from('orders').insert({
-      reference, email, tier, plan_period, amount_kobo,
-      status: 'paid', paid_at: paidAt, source: 'ghl',
-    });
+    const { error: insErr } = await supabase.from('orders').insert({ reference, ...orderFields });
     if (insErr) {
-      // Race: another delivery inserted concurrently — treat as duplicate.
       if (String(insErr.code) === '23505') {
         alreadyPaid = true;
       } else {
@@ -230,22 +226,18 @@ Deno.serve(async (req) => {
   }
 
   // ============================================================
-  // GHL CRM push-back — never block the 200 back to GHL.
-  // API base: https://services.leadconnectorhq.com  (LeadConnector v2)
-  // Endpoints used:
-  //   GET  /contacts/?locationId=...&query=<email>   (lookup by email)
-  //   POST /contacts/                                (create if not found)
-  //   POST /contacts/{id}/tags                       (add tags)
-  //   PUT  /contacts/{id}                            (update custom field)
-  // Failure policy: any GHL call failure is logged (endpoint, status, body)
-  // and swallowed. The order is already recorded; we still return 200.
-  // Date format for the custom field: "YYYY-MM-DD" (ISO calendar date).
+  // GHL CRM push-back — use contact_id from the payload directly.
+  // No lookup, no create.
+  //   POST /contacts/{id}/tags   → add fcs-{tier}-{period} + fcs-client
+  //   PUT  /contacts/{id}        → set custom field contact.next_invoice_date
+  // Failures logged + swallowed; never block the 200.
   // ============================================================
   try {
     const ghlToken = Deno.env.get('GHL_API_TOKEN');
-    const locationId = Deno.env.get('GHL_LOCATION_ID');
-    if (!ghlToken || !locationId) {
-      console.warn('[ghl-sync] skipping — GHL_API_TOKEN or GHL_LOCATION_ID missing');
+    if (!ghlToken) {
+      console.warn('[ghl-sync] skipping — GHL_API_TOKEN missing');
+    } else if (!contactId) {
+      console.warn('[ghl-sync] skipping — no contact_id in payload');
     } else {
       const GHL_BASE = 'https://services.leadconnectorhq.com';
       const ghlHeaders = {
@@ -259,92 +251,55 @@ Deno.serve(async (req) => {
         const url = `${GHL_BASE}${path}`;
         try {
           const res = await fetch(url, {
-            method,
-            headers: ghlHeaders,
+            method, headers: ghlHeaders,
             body: body ? JSON.stringify(body) : undefined,
           });
           const text = await res.text();
-          if (!res.ok) {
-            console.error(`[ghl-sync] ${method} ${path} -> ${res.status}`, text);
-          } else {
-            console.log(`[ghl-sync] ${method} ${path} -> ${res.status}`);
-          }
-          let json: any = null;
-          try { json = text ? JSON.parse(text) : null; } catch { /* non-JSON */ }
-          return { ok: res.ok, status: res.status, body: text, json };
+          if (!res.ok) console.error(`[ghl-sync] ${method} ${path} -> ${res.status}`, text);
+          else console.log(`[ghl-sync] ${method} ${path} -> ${res.status}`);
+          return { ok: res.ok, status: res.status, body: text };
         } catch (e) {
           console.error(`[ghl-sync] ${method} ${path} threw:`, e);
-          return { ok: false, status: 0, body: String(e), json: null };
+          return { ok: false, status: 0, body: String(e) };
         }
       }
 
-      // 1. Lookup contact by email
-      let contactId: string | null = null;
-      const lookup = await ghlCall(
-        'GET',
-        `/contacts/?locationId=${encodeURIComponent(locationId)}&query=${encodeURIComponent(email)}`,
-      );
-      if (lookup.ok && lookup.json?.contacts?.length) {
-        // Prefer exact email match
-        const match = lookup.json.contacts.find(
-          (c: any) => (c.email || '').toLowerCase() === email.toLowerCase(),
-        ) || lookup.json.contacts[0];
-        contactId = match?.id || null;
-      }
+      const tierSlug = tier.toLowerCase().replace(/\s+control$/, '').replace(/\s+/g, '-');
+      const periodSlug = plan_period.replace(/_/g, '-');
+      const productTag = `fcs-${tierSlug}-${periodSlug}`;
 
-      // 2. Create contact if missing
-      if (!contactId) {
-        const created = await ghlCall('POST', '/contacts/', {
-          locationId,
-          email,
-          source: 'FCS GHL Ingest',
+      await ghlCall('POST', `/contacts/${contactId}/tags`, {
+        tags: [productTag, 'fcs-client'],
+      });
+
+      const monthsAhead =
+        plan_period === 'quarterly' ? 3 :
+        plan_period === 'half_yearly' ? 6 :
+        plan_period === 'annual' ? 12 : 0;
+      if (monthsAhead > 0) {
+        const paid = new Date(paidAt);
+        const next = new Date(paid);
+        next.setUTCMonth(next.getUTCMonth() + monthsAhead);
+        const nextDateStr = next.toISOString().slice(0, 10); // YYYY-MM-DD
+        console.log('[ghl-sync] next_invoice_date:', nextDateStr, `(${plan_period}, +${monthsAhead}mo)`);
+
+        await ghlCall('PUT', `/contacts/${contactId}`, {
+          customFields: [
+            { key: 'contact.next_invoice_date', field_value: nextDateStr },
+          ],
         });
-        contactId = created.json?.contact?.id || created.json?.id || null;
-        if (!contactId) {
-          console.warn('[ghl-sync] could not resolve contactId after create; skipping tag/field updates');
-        }
-      }
-
-      if (contactId) {
-        // 3. Build tag from mapped tier + period (fallback pieces if unknown)
-        const tierSlug = tier.toLowerCase().replace(/\s+control$/, '').replace(/\s+/g, '-');
-        const periodSlug = plan_period.replace(/_/g, '-');
-        const productTag = `fcs-${tierSlug}-${periodSlug}`;
-
-        // 3a. Add tags (product + fcs-client)
-        await ghlCall('POST', `/contacts/${contactId}/tags`, {
-          tags: [productTag, 'fcs-client'],
-        });
-
-        // 3b. Update custom field "FCS Next Invoice Date"
-        const monthsAhead =
-          plan_period === 'quarterly' ? 3 :
-          plan_period === 'half_yearly' ? 6 :
-          plan_period === 'annual' ? 12 :
-          plan_period === 'monthly' ? 1 : 0;
-        if (monthsAhead > 0) {
-          const paid = new Date(paidAt);
-          const next = new Date(paid);
-          next.setUTCMonth(next.getUTCMonth() + monthsAhead);
-          const nextDateStr = next.toISOString().slice(0, 10); // YYYY-MM-DD
-          console.log('[ghl-sync] next_invoice_date computed:', nextDateStr, `(${plan_period}, +${monthsAhead}mo)`);
-
-          await ghlCall('PUT', `/contacts/${contactId}`, {
-            customFields: [
-              { key: 'contact.next_invoice_date', field_value: nextDateStr },
-            ],
-          });
-        } else {
-          console.warn('[ghl-sync] plan_period unknown — skipping next_invoice_date update');
-        }
+      } else {
+        console.warn('[ghl-sync] plan_period unknown — skipping next_invoice_date update');
       }
     }
   } catch (e) {
     console.error('[ghl-sync] threw (swallowed):', e);
   }
 
-  return new Response(JSON.stringify({ ok: true, reference, tier, plan_period, amount_kobo }), {
+  return new Response(JSON.stringify({
+    ok: true, reference, tier, plan_period,
+    amount_kobo, subtotal_kobo, tax_kobo,
+  }), {
     status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
   });
 });
-

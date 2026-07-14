@@ -25,6 +25,8 @@ export type Database = {
           reference: string
           source: string | null
           status: string
+          subtotal_kobo: number | null
+          tax_kobo: number | null
           tier: string
           updated_at: string
         }
@@ -38,6 +40,8 @@ export type Database = {
           reference: string
           source?: string | null
           status?: string
+          subtotal_kobo?: number | null
+          tax_kobo?: number | null
           tier: string
           updated_at?: string
         }
@@ -51,6 +55,8 @@ export type Database = {
           reference?: string
           source?: string | null
           status?: string
+          subtotal_kobo?: number | null
+          tax_kobo?: number | null
           tier?: string
           updated_at?: string
         }

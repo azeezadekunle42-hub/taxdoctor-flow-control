@@ -56,7 +56,7 @@ Deno.serve(async (req) => {
   if (view === 'clients') {
     const { data: rows, error } = await supabase
       .from('orders')
-      .select('id,email,tier,plan_period,amount_kobo,status,created_at,paid_at')
+      .select('id,email,tier,plan_period,amount_kobo,subtotal_kobo,tax_kobo,status,created_at,paid_at')
       .order('created_at', { ascending: false });
     if (error) {
       return new Response(JSON.stringify({ error: error.message }), {
@@ -94,7 +94,9 @@ Deno.serve(async (req) => {
         : r.status === 'pending' ? 'trial'
         : 'inactive';
 
-      const naira = (r.amount_kobo || 0) / 100;
+      // MRR is ex-VAT: prefer subtotal_kobo; fall back to amount_kobo for legacy rows.
+      const revenueKobo = (r as any).subtotal_kobo ?? r.amount_kobo ?? 0;
+      const naira = revenueKobo / 100;
       const period = (r.plan_period || '').toLowerCase();
       let mrr = 0;
       if (r.status === 'paid') {
