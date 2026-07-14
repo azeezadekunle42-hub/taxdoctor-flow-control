@@ -98,9 +98,10 @@ Deno.serve(async (req) => {
       const period = (r.plan_period || '').toLowerCase();
       let mrr = 0;
       if (r.status === 'paid') {
-        if (period.includes('month')) mrr = naira;
-        else if (period.includes('year') || period.includes('annual')) mrr = Math.round(naira / 12);
-        else if (period.includes('quarter')) mrr = Math.round(naira / 3);
+        if (period === 'monthly' || period.includes('month')) mrr = naira;
+        else if (period === 'quarterly' || period.includes('quarter')) mrr = Math.round(naira / 3);
+        else if (period === 'half_yearly' || period.includes('half') || period.includes('semi')) mrr = Math.round(naira / 6);
+        else if (period === 'annual' || period.includes('year')) mrr = Math.round(naira / 12);
       }
 
       const segment = `${r.tier}${r.plan_period ? ` · ${r.plan_period}` : ''}`;
